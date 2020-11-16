@@ -16,8 +16,6 @@ use Slim\Middleware\ErrorMiddleware;
 use Psr\Http\Message\UploadedFileInterface;
 //Controller
 use App\Controllers\UserController;
-use App\Controllers\MascotaController;
-use App\Controllers\TurnoController;
 //Middleware
 use App\Middlewares\JsonMiddleware;
 use App\Middlewares\AuthMiddleware;
@@ -31,12 +29,12 @@ $app->addRoutingMiddleware();
 
 $app->setBasePath("/ProgramacionIII-SP");
 new Database();
-/*
+
 $app->post('/registro', UserController::class . ":signup")
             ->add(new JsonMiddleware); //1
 
 $app->post('/login', UserController::class . ":LogIn")->add(new JsonMiddleware); //2
-
+/*
 $app->post('/tipo_mascota', MascotaController::class . ":addPetType")
             ->add(new JsonMiddleware)
             ->add(new AuthMiddleware)
