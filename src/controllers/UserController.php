@@ -19,17 +19,33 @@ class UserController
 
         try {
             $body = $request->getParsedBody();
-            $count = User::where('email', $body["email"])->count();
+            $email = $body["email"] ?? '';
+            $password = $body["password"] ?? '';
+            $tipoUsuario = $body["tipo_usuario"] ?? '';
 
-            if ($count > 0) {
-                $response->getBody()->write(json_encode(array("rta" => "User is already exists")));
+            if (strlen($email) == 0) {
+                $response->getBody()->write(json_encode(array("message" => "User is required")));
             } else {
-                $user = new User;
-                $user->email = $body["email"];
-                $user->tipo_usuario = $body["tipo_usuario"];
-                $user->password = password_hash($body["password"], PASSWORD_BCRYPT);
-                $user->save();
-                $response->getBody()->write(json_encode(array("rta" => "User has been saved successfuly")));
+                if (strlen($password) == 0) {
+                    $response->getBody()->write(json_encode(array("message" => "Password is required")));
+                } else {
+                    if (strlen($tipoUsuario) == 0) {
+                        $response->getBody()->write(json_encode(array("message" => "User Type is required")));
+                    } else {
+                        $count = User::where('email', $body["email"])->count();
+
+                        if ($count > 0) {
+                            $response->getBody()->write(json_encode(array("rta" => "User is already exists")));
+                        } else {
+                            $user = new User;
+                            $user->email = $body["email"];
+                            $user->tipo_usuario = $body["tipo_usuario"];
+                            $user->password = password_hash($body["password"], PASSWORD_BCRYPT);
+                            $user->save();
+                            $response->getBody()->write(json_encode(array("rta" => "User has been saved successfuly")));
+                        }
+                    }
+                }
             }
             return $response;
         } catch (\Illuminate\Database\QueryException $e) {
@@ -48,27 +64,32 @@ class UserController
             $body = $request->getParsedBody();
             $email = $body["email"] ?? '';
             if (strlen($email) > 0) {
-                $user = User::where('email',$email)->get();
+                $user = User::where('email', $email)->get();
                 //var_dump($user[0]['tipo_usuario']);
                 if ($user == null) {
                     $response->getBody()->write(json_encode(array('message' => "Wrong email")));
                 } else {
                     $password = $body["password"] ?? '';
                     if (strlen($password) > 0) {
-                        $token = iToken::encodeUserToken($email, $password, $user[0]['tipo_usuario']);
-                        if (isset($token)){
-                            $response->getBody()->write(json_encode($token));
-                        }else{
-                            $response->getBody()->write(json_encode(array("error" => "Something goes wrong. Please, check your credentials")));
+                        $tipo = $user[0]['tipo_usuario'];
+                        if (strlen($tipo) > 0) {
+                            $token = iToken::encodeUserToken($email, $password, $tipo);
+                            if (isset($token)) {
+                                $response->getBody()->write(json_encode($token));
+                            } else {
+                                $response->getBody()->write(json_encode(array("error" => "Something goes wrong. Please, check your credentials")));
+                            }
+                        } else {
+                            $response->getBody()->write(json_encode(array("error" => "Something goes wrong. Token has not sent the User Type")));
                         }
-                    }else{
+                    } else {
                         $response->getBody()->write(json_encode(array("error" => "You must set a password")));
                     }
                 }
             } else {
                 $response->getBody()->write(json_encode(array("error" => "You must set an email")));
             }
-            
+
             return $response;
         } catch (\Throwable $th) {
             $response->getBody()->write($th->getMessage());

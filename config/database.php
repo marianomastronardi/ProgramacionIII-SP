@@ -15,7 +15,7 @@ class Database{
 $capsule->addConnection([
     'driver'    => 'mysql',
     'host'      => 'localhost',
-    'database'  => 'veterinaria',
+    'database'  => 'sp',
     'username'  => 'root',
     'password'  => '',
     'charset'   => 'utf8',

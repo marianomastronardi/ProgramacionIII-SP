@@ -6,6 +6,14 @@
             "email": "marianogarciamastronardi@yahoo.com.ar"
         }
     ],
+    "autoload": {
+        "psr-4": {
+            "Seguridad\\": "clases",
+            "App\\": "src",
+            "Config\\": "config",
+            "App\\Models\\": "src/models"
+        }
+    },
     "require": {
         "firebase/php-jwt": "^5.2",
         "slim/slim": "4.*",
