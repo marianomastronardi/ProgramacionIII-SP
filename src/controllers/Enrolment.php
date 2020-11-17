@@ -89,10 +89,10 @@ class EnrolmentController
 
                 $materia = $args['idMateria'];
 
-                $enrolment = Enrolment::select()
+                $enrolment = Enrolment::select('enrolments.id', 'alumnos.nombre', 'subjects.nombre')
                     ->join('subjects', 'subjects.id', '=', 'enrolments.materia_id')
                     ->join('alumnos', 'alumnos.id', '=', 'enrolments.alumno_id')
-                    ->where('materia_id', $materia)->get();
+                    ->where('enrolments.materia_id', $materia)->get();
 
                 $response->getBody()->write(json_encode($enrolment));
             } else {
