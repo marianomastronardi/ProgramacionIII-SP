@@ -15,15 +15,15 @@ function __get($name)
 static function encodeUserToken($email, $password, $tipo)
 {
     $payload = array(
-        "iss" => "http://example.org",
-        "aud" => "http://example.com",
-        "iat" => 1356999524,
-        "nbf" => 1357000000,
-        "email" => $email,
-        "password" => $password,
-        "tipo" => $tipo
-    );
-    
+            "iss" => "http://example.org",
+            "aud" => "http://example.com",
+            "iat" => 1356999524,
+            "nbf" => 1357000000,
+            "email" => $email,
+            "password" => $password,
+            "tipo" => $tipo,
+        );
+  
  
     $jwt = JWT::encode($payload, iToken::$_key);
     return $jwt;

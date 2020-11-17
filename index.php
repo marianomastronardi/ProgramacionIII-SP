@@ -16,10 +16,14 @@ use Slim\Middleware\ErrorMiddleware;
 use Psr\Http\Message\UploadedFileInterface;
 //Controller
 use App\Controllers\UserController;
+use App\Controllers\SubjectController;
+use App\Controllers\EnrolmentController;
 //Middleware
 use App\Middlewares\JsonMiddleware;
 use App\Middlewares\AuthMiddleware;
 use App\Middlewares\UserMiddleware;
+use App\Middlewares\ProfesorMiddleware;
+use App\Middlewares\AlumnoMiddleware;
 
 require __DIR__ . '/vendor/autoload.php';
 $container = new Container();
@@ -30,24 +34,24 @@ $app->addRoutingMiddleware();
 $app->setBasePath("/ProgramacionIII-SP");
 new Database();
 
-$app->post('/registro', UserController::class . ":signup")
-            ->add(new JsonMiddleware); //1
+$app->post('/users', UserController::class . ":signup")
+    ->add(new JsonMiddleware); //1
 
 $app->post('/login', UserController::class . ":LogIn")->add(new JsonMiddleware); //2
-/*
-$app->post('/tipo_mascota', MascotaController::class . ":addPetType")
-            ->add(new JsonMiddleware)
-            ->add(new AuthMiddleware)
-            ->add(new UserMiddleware); //3
 
-$app->post('/mascota', MascotaController::class . ":add")
-            ->add(new JsonMiddleware)
-            ->add(new AuthMiddleware); //4
+$app->group('/inscripcion', function (RouteCollectorProxy $group) {
+    $group->post('/{idMateria}', EnrolmentController::class . ":add")->add(new AlumnoMiddleware); //4
+    $group->get('/{idMateria}', EnrolmentController::class . ":getOne");  //6
+})->add(new JsonMiddleware)->add(new AuthMiddleware);
 
- $app->group('/turnos', function (RouteCollectorProxy $group) {
-    $group->post('/mascota', TurnoController::class . ":add"); //5
-    $group->get('/{id_usuario}', TurnoController::class . ":getByUserId");  //6 //7 //8
-    $group->get('/mascota/{id_mascota}', TurnoController::class . ":getByPet"); //9
-})->add(new JsonMiddleware)->add(new AuthMiddleware);  
-*/
-$app->run(); 
+$app->group('/notas/{idMateria}', function (RouteCollectorProxy $group) {
+    $group->put('', EnrolmentController::class . ":setNote")->add(new ProfesorMiddleware); //5
+    $group->get('', EnrolmentController::class . ":getNotes"); //9
+})->add(new JsonMiddleware)->add(new AuthMiddleware);
+
+$app->group('/materia', function (RouteCollectorProxy $group) {
+    $group->post('', SubjectController::class . ":add")->add(new UserMiddleware); //3
+    $group->get('', SubjectController::class . ":getAll"); //7
+})->add(new JsonMiddleware)->add(new AuthMiddleware);
+
+$app->run();
