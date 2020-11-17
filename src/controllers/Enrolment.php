@@ -31,13 +31,21 @@ class EnrolmentController
             if ($jwt) {
                 $user = User::find($jwt["email"]);
                 if ($user->tipo_usuario == 'alumno') {
-                    $alumno = Alumno::select('id')->where('email', $jwt["email"])->get();
-                    var_dump($alumno[0]["id"]);
-                    $enrolment = new Enrolment();
-                    $enrolment->alumno_id = $alumno[0]["id"];
-                    $enrolment->materia_id = $id_materia;
-                    $enrolment->save();
-                    $response->getBody()->write(json_encode(array('message' => 'Enrolment has been saved!!')));
+
+                    $cupos = Subject::find($id_materia);
+                    $inscriptos = Enrolment::where('materia_id', $id_materia)->count();
+                    if ($cupos->cupos <= $inscriptos) {
+                        $response->getBody()->write(json_encode(array('message' => 'Sin vacantes!!')));
+                    } else {
+                        $alumno = Alumno::select('id')->where('email', $jwt["email"])->get();
+                        $enrolment = new Enrolment();
+                        $enrolment->alumno_id = $alumno[0]["id"];
+                        $enrolment->materia_id = $id_materia;
+
+                        $enrolment->save();
+
+                        $response->getBody()->write(json_encode(array('message' => 'Enrolment has been saved!!')));
+                    }
                 } else {
                     $response->getBody()->write(json_encode(array('message' => 'Debe ser alumno para poder inscribirse')));
                 }
